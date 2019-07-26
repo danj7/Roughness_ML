@@ -5,6 +5,8 @@ This code creates a model from artificial interfaces created using an algorithm 
 
 [image]
 
+Sample interfaces will be shown in the Jupyter Notebook.
+
 ## Setting up
 The model is constructed using Keras with the TensorFlow backend. I am also using the Anaconda Python 3.7 distribution, a GeForce GTX 960M graphics card, and I am running Manjaro Linux . Installing all the components needed was a little tricky but one should probably start by installing the NVIDIA Drivers from https://www.nvidia.com/Download/index.aspx (I installed the latest one, version 430.34) and the CUDA Toolkit from https://developer.nvidia.com/cuda-downloads (I installed version 10.1, but that caused some problems I'll explain later on).
 
