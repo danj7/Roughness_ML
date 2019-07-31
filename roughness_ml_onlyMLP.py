@@ -13,7 +13,7 @@ from contextlib import redirect_stdout
 np.random.seed(7)
 
 #dimensions of input image of interface (a square)
-length = 128
+length = 64
 
 #amount of images per zeta value
 Ninterfaces = 1000
@@ -34,9 +34,12 @@ from interfaces.interface_generation import *
 interfs_train, interfs_valid, zetas_train, zetas_valid = generate_train_validate_set(Ninterfaces, length,
                                                                                      zetas, test_size_proportion)
 #reshaping data to 'channels_last' format
-interfs_train = interfs_train.reshape(interfs_train.shape[0], length, length, 1)
-interfs_valid = interfs_valid.reshape(interfs_valid.shape[0], length, length, 1)
-input_shape = (length, length, 1)
+#interfs_train = interfs_train.reshape(interfs_train.shape[0], length, length, 1)
+#interfs_valid = interfs_valid.reshape(interfs_valid.shape[0], length, length, 1)
+#input_shape = (length, length, 1)
+interfs_train = interfs_train.reshape(interfs_train.shape[0], length * length)
+interfs_valid = interfs_valid.reshape(interfs_valid.shape[0], length * length)
+input_shape = (length*length,)
 
 # convert class vectors to binary class matrices
 zetas_train = keras.utils.to_categorical(zetas_train*20-1, num_classes)
@@ -45,13 +48,13 @@ zetas_valid = keras.utils.to_categorical(zetas_valid*20-1, num_classes)
 
 #Model
 model = Sequential()
-model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+#model.add(Conv2D(128, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
+#model.add(MaxPooling2D(pool_size=(2, 2)))
 
-
-model.add(Dropout(0.5))
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
+#model.add(Flatten())
+#model.add(Dropout(0.5))
+num_pixels = length*length
+model.add(Dense(num_pixels, activation='relu', input_shape=input_shape))
 model.add(Dense(num_classes, activation='softmax'))
 
 #Compiling model
@@ -98,7 +101,8 @@ random_zetas = np.random.choice(zetas, 5)
 interfs_test, zetas_test = generate_interfaces(2, length, random_zetas)
 
 #reshaping for prediction and saving predictions
-interfs_test_pred = interfs_test.reshape(10, length, length, 1)
+#interfs_test_pred = interfs_test.reshape(10, length, length, 1)
+interfs_test_pred = interfs_test.reshape(10, length * length)
 predictions = model.predict(interfs_test_pred)
 
 #extracting predicting zetas
@@ -108,27 +112,12 @@ for i in range(len(interfs_test)):
 #convert to numpy array
 zetas_pred = np.array(zetas_pred)
 
-#fraction of zetas the model got right in this Test.
-fractional_accuracy = (zetas_test==zetas_pred).sum() / len(zetas_test)
-print('Percentage accuracy in testing = '
-      + str(np.round(fractional_accuracy * 100, 2))
-      + '%')
-#calculating rms error
-rms_error = np.sqrt( ((zetas_pred - zetas_test)**2).sum() / len(zetas_test) )
-print('RMS Error: '+str(np.round(rms_error, 2)))
-
 #Save the model and model information
 model.save('model_roughness_ml.h5')
 with open('model_results.txt', 'a') as file:
     with redirect_stdout(file):
         model.summary()
-    file.write('Length of square: '+str(length)+'\n')
-    file.write('Interfaces per zeta: '+str(Ninterfaces)+'\n')
-    file.write('Number of Epochs: '+str(epochs)+'\n')
-    file.write('Validation loss: '+str(score[0])+'\n')
-    file.write('Validation accuracy: '+str(score[1])+'\n')
-    file.write('zetas_test = '+str(zetas_test)+'\n')
-    file.write('zetas_pred = '+str(zetas_pred)+'\n')
-    file.write('Test fractional accuracy: '+str(fractional_accuracy)+'\n')
-    file.write('RMS Error: '+str(np.round(rms_error, 2))+'\n')
-    file.write('*****************************************************************\n')
+    file.write('Number of Epochs:', epochs)
+    file.write('Validation loss: ', score[0])
+    file.write('Validation accuracy: ', score[1])
+    file.write('Test fractional accuracy: ', fractional_accuracy)

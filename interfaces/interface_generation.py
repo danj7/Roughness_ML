@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 #The following functions generate the interfaces to train and validate.
 def generate_interfaces(Ninterfaces, length, zetas, amplitude = 1.0, shuffle = True):
     """
