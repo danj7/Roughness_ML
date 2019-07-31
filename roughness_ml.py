@@ -48,9 +48,12 @@ model = Sequential()
 model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
+model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Dropout(0.5))
 model.add(Flatten())
+model.add(Dense(256, activation='relu'))
 model.add(Dense(128, activation='relu'))
 model.add(Dense(num_classes, activation='softmax'))
 
@@ -109,10 +112,14 @@ for i in range(len(interfs_test)):
 zetas_pred = np.array(zetas_pred)
 
 #fraction of zetas the model got right in this Test.
-fractional_accuracy = (zetas_test==zetas_pred).sum() / len(zetas_test)
-print('Percentage accuracy in testing = '
-      + str(np.round(fractional_accuracy * 100, 2))
-      + '%')
+print('zetas_test = ',zetas_test)
+print('zetas_pred = ',zetas_pred)
+bool_array = len(zetas_test[zetas_test-zetas_pred==0.0])#zetas_test==zetas_pred
+print('bool_array= ', bool_array)
+fractional_accuracy = 1.0 * bool_array.sum()
+fractional_accuracy /= len(zetas_test)
+print('fractional_accuracy =',fractional_accuracy)
+print('Percentage accuracy in testing = '+ str(fractional_accuracy*100)+ '%')
 #calculating rms error
 rms_error = np.sqrt( ((zetas_pred - zetas_test)**2).sum() / len(zetas_test) )
 print('RMS Error: '+str(np.round(rms_error, 2)))
