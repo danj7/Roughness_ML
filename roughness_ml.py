@@ -16,9 +16,10 @@ np.random.seed(7)
 length = 128
 
 #amount of images per zeta value
-Ninterfaces = 1000
+Ninterfaces = 2000
 
 #zetas to test: min value, max value, step
+#zetas = np.arange(0.1, 1.01, 0.1)
 zetas = np.arange(0.05, 1.05, 0.05)
 
 #proportion of train data to use as validation
@@ -39,9 +40,9 @@ interfs_valid = interfs_valid.reshape(interfs_valid.shape[0], length, length, 1)
 input_shape = (length, length, 1)
 
 # convert class vectors to binary class matrices
-zetas_train = keras.utils.to_categorical(zetas_train*20-1, num_classes)
-zetas_valid = keras.utils.to_categorical(zetas_valid*20-1, num_classes)
-#the *20-1 is because .to_categorical() requires array of ints
+zetas_train = keras.utils.to_categorical(zetas_train*num_classes-1, num_classes)
+zetas_valid = keras.utils.to_categorical(zetas_valid*num_classes-1, num_classes)
+#the *num_classes-1 is because .to_categorical() requires array of ints starting from 0.
 
 #Model
 model = Sequential()
@@ -51,9 +52,14 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Dropout(0.5))
+model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Dropout(0.1))
 model.add(Flatten())
-model.add(Dense(256, activation='relu'))
+model.add(Dense(1024, activation='relu'))
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.1))
 model.add(Dense(128, activation='relu'))
 model.add(Dense(num_classes, activation='softmax'))
 
@@ -96,6 +102,8 @@ plt.legend()
 plt.savefig('train_and_val_loss.png')
 
 #testing with some new interfaces
+#reseeding the RNG
+np.random.seed()
 #choosing 5 random zeta values and generating 2 interfaces per zeta
 random_zetas = np.random.choice(zetas, 5)
 interfs_test, zetas_test = generate_interfaces(2, length, random_zetas)
@@ -112,11 +120,15 @@ for i in range(len(interfs_test)):
 zetas_pred = np.array(zetas_pred)
 
 #fraction of zetas the model got right in this Test.
-print('zetas_test = ',zetas_test)
-print('zetas_pred = ',zetas_pred)
-bool_array = len(zetas_test[zetas_test-zetas_pred==0.0])#zetas_test==zetas_pred
-print('bool_array= ', bool_array)
-fractional_accuracy = 1.0 * bool_array.sum()
+# print('zetas_test = ',zetas_test)
+# print('zetas_test dtype =', zetas_test.dtype)
+# print('zetas_pred = ',zetas_pred)
+# print('zetas_pred dtype =', zetas_pred.dtype)
+# print('resta =', zetas_test-zetas_pred)
+# print('resta array =', zetas_test[np.abs(zetas_test-zetas_pred)<1e-2])
+# bool_array = np.array(zetas_test==zetas_pred.astype('float32'))
+# print('bool_array= ', bool_array)
+fractional_accuracy = 1.0 * len(zetas_test[np.abs(zetas_test-zetas_pred)<1e-2])
 fractional_accuracy /= len(zetas_test)
 print('fractional_accuracy =',fractional_accuracy)
 print('Percentage accuracy in testing = '+ str(fractional_accuracy*100)+ '%')
@@ -134,6 +146,7 @@ with open('model_results.txt', 'a') as file:
     file.write('Number of Epochs: '+str(epochs)+'\n')
     file.write('Validation loss: '+str(score[0])+'\n')
     file.write('Validation accuracy: '+str(score[1])+'\n')
+    file.write('Classes: '+str(len(zetas))+' zeta values = '+str(zetas)+'\n')
     file.write('zetas_test = '+str(zetas_test)+'\n')
     file.write('zetas_pred = '+str(zetas_pred)+'\n')
     file.write('Test fractional accuracy: '+str(fractional_accuracy)+'\n')

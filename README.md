@@ -27,7 +27,19 @@ $ sudo pip install keras
 and all seems to work.
 
 ## Usage
-Use the included Jupyter Notebook which includes all the necessary functions to work with.
+You can clone the repo to a folder using
+```
+$ git clone https://github.com/danj7/Roughness_ML.git
+```
+and in the included Jupyter Notebook is the code that loads all the packages needed, builds the model and shows sample interfaces. It also builds a random testing set of interfaces to predict values for. However, this can slow down the browser (I am using Firefox) a lot, so the other option is to run the Python 3 file `roughness_ml.py` from the terminal,
+```
+$ python roughness_ml.py
+```
+and it will do the same thing, as well as write a file called `model_results.txt` which I used to test different versions of the model.
+
+## Results
+Training and validating is done with 2000 interfaces per zeta value over 10 epochs. The resulting model has a validation accuracy of 98.1%. However, seeing how there are so many classes in this exercise (20, though in real life there is an infinite number of *roughness exponents*) and the details/features that the model has to take into consideration are a lot, every prediction made by the model is always off. I calculated an approximate *rms error* of 0.2 for any prediction.
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
