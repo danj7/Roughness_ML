@@ -5,9 +5,11 @@ This code creates a model from artificial interfaces created using an algorithm 
 ![Complete image](https://user-images.githubusercontent.com/13749006/63537806-a321ce00-c4e4-11e9-8456-c38ae05b97bb.png)
 
 Then, one can take a section from the original:
+
 ![Partial image](https://user-images.githubusercontent.com/13749006/63538057-1deae900-c4e5-11e9-98a6-57366b5e68e4.png)
 
 and then binarized. In this case, I also rotated it:
+
 ![Binarized image](https://user-images.githubusercontent.com/13749006/63538100-30652280-c4e5-11e9-8433-b560fb0940be.png)
 
 Sample artificial interfaces will be shown in the Jupyter Notebook.
